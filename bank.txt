@@ -1,0 +1,428 @@
+
+//Main.Java
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
+
+public class Main {
+    static Scanner s = new Scanner(System.in);
+    static ArrayList<Bank> clients = new ArrayList<>();
+    static String[] account_type = {"savings", "current", "salary", "fixed"};
+    public static int accno_generator() {
+        Random rand = new Random();
+        int resRandom = rand.nextInt((9999 - 100) + 1) + 10;
+
+        return resRandom;
+
+    }
+
+    public static void usingBufferedWritter(String s) throws IOException {
+        File file = new File("append.txt");
+        FileWriter fr = new FileWriter(file, true);
+        BufferedWriter br = new BufferedWriter(fr);
+        br.write(s);
+
+        br.close();
+        fr.close();
+    }
+    public static void openAccount()
+    {
+        System.out.println("For how many Users you want to open an account ?");
+        int n = s.nextInt();
+        for (int i = 0; i < n; i++) {
+            s.nextLine();
+
+            int client_number = i + 1;
+            System.out.println("Enter name of client number " + client_number);
+//            String name = s.nextLine();
+            String name="";
+
+            name+=s.nextLine();
+            System.out.println("Select which type of account you want to open");
+            for (int j = 0; j < account_type.length; j++) {
+
+                System.out.println(account_type[j]);
+            }
+            String acc_type = s.next();
+            System.out.println("Enter the opening balance in account of " + name);
+            int balance = s.nextInt();
+            int acc = accno_generator();
+
+            System.out.println(acc_type + " account of " + name + " is opened with a balance of Rs." + balance + " and Your account number is " + acc);
+
+            Bank b1 = new Bank(name, acc, balance, acc_type);
+            clients.add(b1);
+        }
+    }
+
+    public static void editAccount() throws IOException
+    {
+        System.out.println("Please enter the account number for which you want to edit details");
+        int acc=s.nextInt();
+        s.nextLine();
+        System.out.println("Enter a new name for your account");
+        String new1=s.nextLine();
+        for(int i=0;i<clients.size();i++)
+        {
+            Bank b2=clients.get(i);
+            if(b2.getAccno()==acc)
+            {
+                b2.setName(new1);
+                System.out.println("Your updated account details are: \n"+ b2.toString());
+            }
+        }
+    }
+    public static void viewAccount() throws IOException {
+        System.out.println("Please Enter your name to view account details:");
+        String nm=s.next();
+
+        for(int i=0;i<clients.size();i++)
+        {
+            Bank b1= clients.get(i);
+            if(b1.getName().equalsIgnoreCase(String.valueOf(nm)))
+            {
+                System.out.println(b1.toString());
+            }
+        }
+    }
+
+    public static void transactions()
+    {
+        System.out.println("Please select which type of transaction you want to perform:");
+        System.out.println("1.Withdraw\n2.Deposit Money\n3.Transfer money to another account\n4. Pay utility Bills\n5.View Balance.");
+        int choice=s.nextInt();
+        switch(choice){
+            case 1: try{ Bank.withdraw_money();
+            }
+            catch (Exception e)
+            {System.out.println(e);
+            }
+                break;
+            case 2: Bank.deposit_money();
+                break;
+            case 3: Bank.transfer_money();
+                break;
+            case 4: Bank.pay_bills();
+                break;
+            case 5: Bank.view_balance();
+                break;
+            default: System.out.println("Please enter a valid option.");
+                break;
+        }
+    }
+    public static void main(String args[]){
+
+
+        System.out.println("Welcome To The Banking System\nPlease choose an option:");
+        openAccount();
+        boolean c=true;
+        System.out.println("1.View my Account \n2.Edit my account details\n3.Do a transaction\n4.Exit");
+        int choice = s.nextInt();
+        while(c) {
+
+            switch (choice) {
+                case 1:
+                    try {
+                        viewAccount();
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+                    System.out.println("1.View my account \n2.Edit my account details\n3.Do a transaction\n4.Exit");
+                    choice = s.nextInt();
+                    break;
+                case 2:
+                    try {
+                        editAccount();
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+                    System.out.println("1.View my account \n2.Edit my account details\n3.Do a transaction\n4.Exit");
+                    choice = s.nextInt();
+                    break;
+
+                case 3:
+                    transactions();
+                    System.out.println("1.View my account \n2.Edit my account details\n3.Do a transaction\n4.Exit");
+                    choice = s.nextInt();
+                    break;
+                case 4: c=false;
+                    System.out.println("Thank You for using our Banking system!");
+                    break;
+                default:
+                    System.out.println("Please choose a valid option");
+
+            }
+        }
+
+        for (int i = 0; i < clients.size(); i++) {
+            Bank b2 = clients.get(i);
+            //String s1 = "\nName : " + b2.getName() + " , Account Number : " + b2.getAccno() + " , Balance : " + b2.getBalance() + " , Account Type : " + b2.getAcc_type();
+            String s1=b2.toString();
+            try {
+                usingBufferedWritter(s1+"\n");
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+
+        }
+
+    }
+}
+
+//Bank.java
+
+import java.io.*;
+import java.util.Scanner;
+
+class Bank{
+    static Scanner s=new Scanner(System.in);
+    private String name;
+    private int accno;
+    private int balance;
+    private String acc_type;
+
+    @Override
+    public String toString() {
+        return
+                "name='" + name + '\'' +
+                        ", accno=" + accno +
+                        ", balance=" + balance +
+                        ", acc_type='" + acc_type + '\'';
+    }
+
+    public void setAccno(int accno) {
+        this.accno = accno;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+    }
+
+    public void setAcc_type(String acc_type) {
+        this.acc_type = acc_type;
+    }
+
+    public Bank()
+    {
+        this.name = name;
+        this.accno = accno;
+        this.balance = balance;
+        this.acc_type=acc_type;
+    }
+    public Bank(String name, int accno, int balance,String acc_type) {
+        this.name = name;
+        this.accno = accno;
+        this.balance = balance;
+        this.acc_type=acc_type;
+    }
+
+    public int getAccno() {
+        return accno;
+    }
+
+    public int getBalance() {
+        return balance;
+    }
+
+    public String getName() {
+        return name;
+    }
+    public String getAcc_type()
+    {
+        return acc_type;
+    }
+
+    public void setName(String name) {
+        String hs=this.name;
+        this.name = name;
+        modifyFile("append.txt",hs,this.name);
+    }
+
+    static void modifyFile(String filePath, String oldString, String newString)
+    {
+        File fileToBeModified = new File(filePath);
+
+        String oldContent = "";
+
+        BufferedReader reader = null;
+
+        FileWriter writer = null;
+
+        try
+        {
+            reader = new BufferedReader(new FileReader(fileToBeModified));
+
+            //Reading all the lines of input text file into oldContent
+
+            String line = reader.readLine();
+
+            while (line != null)
+            {
+                oldContent = oldContent + line + System.lineSeparator();
+
+                line = reader.readLine();
+            }
+
+            //Replacing oldString with newString in the oldContent
+
+            String newContent = oldContent.replaceAll(oldString.toLowerCase(), newString);
+
+            //Rewriting the input text file with newContent
+
+            writer = new FileWriter(fileToBeModified);
+
+            writer.write(newContent);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                //Closing the resources
+
+                reader.close();
+
+                writer.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Your details have been updated !");
+    }
+    public static void withdraw_money() throws IOException
+    {
+        System.out.println("Enter your account number");
+        int acc=s.nextInt();
+        System.out.println("Enter the amount you want to withdraw");
+        int am=s.nextInt();
+        for (int i = 0; i < Main.clients.size(); i++) {
+            Bank b2 = Main.clients.get(i);
+            if(b2.getAccno()==acc)
+            {
+                if(b2.getBalance()<am)
+                {
+                    System.out.println("Sorry, you do not have sufficient Balance");
+                }
+                else{
+                    b2.setBalance(b2.getBalance()-am);
+                }
+                System.out.println("You have succeddfully withdrawn the money\n Your updated account details are "+ b2.toString());
+            }
+        }
+    }
+    public static void deposit_money()
+    {
+        System.out.println("Enter your account number");
+        int acc=s.nextInt();
+        System.out.println("Enter the amount you want to deposit");
+        int am=s.nextInt();
+        for (int i = 0; i < Main.clients.size(); i++) {
+            Bank b2 = Main.clients.get(i);
+            if(b2.getAccno()==acc)
+            {
+                String s2=b2.toString();
+                b2.setBalance(b2.getBalance()+am);
+                System.out.println("You have succeddfully deposited the money\n Your updated account balance is"+ b2.getBalance());
+                // modifyFile("append.txt",s2,b2.toString());
+            }
+        }
+
+    }
+    public static void transfer_money()
+    {
+        System.out.println("Enter your account number");
+        int acc1=s.nextInt();
+        System.out.println("Enter the account number to which you want to transfer");
+        int acc2=s.nextInt();
+        System.out.println("enter the amount you want to transfer");
+        int am=s.nextInt();
+
+        String ac1="";
+        for (int i = 0; i < Main.clients.size(); i++) {
+            Bank b2 = Main.clients.get(i);
+            if(b2.getAccno()==acc1)
+            {
+                if(b2.getBalance()<am)
+                {
+                    System.out.println("Sorry you dont have suffiecient balance");
+                    break;
+                }
+                else{
+                    b2.setBalance(b2.getBalance()-am);
+                    ac1=b2.toString();
+                }
+
+            }
+            if(b2.getAccno()==acc2)
+            {
+                b2.setBalance(b2.getBalance()+am);
+
+                System.out.println("You have successfully transfered money. Updated accounts are:\n"+ac1+"\n"+b2.toString());
+            }
+        }
+
+
+    }
+    public static void pay_bills()
+    {
+        System.out.println("Please select what type of bill you want to pay:\n1. Electricy Bill\n2. DTH bill\n3. Mobile Reacharge");
+        int choice=s.nextInt();
+        switch(choice)
+        {
+            case 1: bill();
+                break;
+            case 2:bill();
+                break;
+            case 3:bill();
+                break;
+            default: System.out.println("Please choose a valid option");
+        }
+    }
+    public static void bill()
+    {
+        System.out.println("Enter your account number from which you want to pay the bill");
+        int acc=s.nextInt();
+        System.out.println("Enter the amount of your bill");
+        int bill=s.nextInt();
+        for(int i = 0; i< Main.clients.size(); i++)
+        {
+            Bank b2= Main.clients.get(i);
+            if(b2.getAccno()==acc)
+            {
+                if(b2.getBalance() < bill)
+                {
+                    System.out.println("Sorry you dont have enough balance to pay the bill!");
+                }
+                else{
+                    b2.setBalance(b2.getBalance()-bill);
+                    System.out.println("You have successfully paid your bill! Your update balance is Rs."+ b2.getBalance());
+                }
+            }
+        }
+    }
+    public static void view_balance()
+    {
+        System.out.println("Please enter your account number to view you balance");
+        int acc=s.nextInt();
+        for(int i = 0; i< Main.clients.size(); i++)
+        {
+            Bank b2= Main.clients.get(i);
+            if(b2.getAccno()==acc)
+            {
+                System.out.println("Your balance is Rs."+b2.getBalance());
+            }
+        }
+    }
+}
+
+
+
+
+
+
